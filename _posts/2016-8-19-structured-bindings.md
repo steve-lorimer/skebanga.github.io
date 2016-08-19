@@ -267,7 +267,9 @@ int main()
     i=1 c=a d=2.3
     f.c=b
 
-We can also capture by rvalue reference using `auto&&`.
+We can also capture as a forwarding reference using `auto&&`.
+
+That is, `auto&&` will resolve to `auto&` for lvalue references, and `auto&&` for rvalud references.
 
 Here is an example of capturing the output from a range-based for loop over a temporary `map`
 
