@@ -4,12 +4,8 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
-
-### More Information
-
-A place to include any other types of information that you'd like to include about yourself.
+I am an experienced C++ technologist, specialising in automated low-latency algorithmic and quantitative trading software on Linux.
 
 ### Contact me
 
-[email@domain.com](mailto:email@domain.com)
+[steve.lorimer@gmail.com](mailto:steve.lorimer@gmail.com)
