@@ -269,22 +269,25 @@ int main()
 
 We can also capture by rvalue reference using `auto&&`.
 
-Here is an example of capturing the output from a range-based for loop over a `map`
+Here is an example of capturing the output from a range-based for loop over a temporary `map`
 
 ```cpp
 #include <iostream>
 #include <map>
 
-int main()
+std::map<std::string, int> get_map()
 {
-    std::map<std::string, int> map = {
+    return {
         { "hello", 1 },
         { "world", 2 },
         { "it's",  3 },
         { "me",    4 },
     };
+}
 
-    for (auto&& [ k, v ] : map)
+int main()
+{
+    for (auto&& [ k, v ] : get_map())
         std::cout << "k=" << k << " v=" << v << '\n';
 
     return 0;
