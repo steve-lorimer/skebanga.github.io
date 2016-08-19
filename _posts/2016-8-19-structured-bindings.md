@@ -207,7 +207,6 @@ Structured bindings also allow us to "unpack" the members of a struct into its i
 
 ```cpp
 #include <iostream>
-#include <tuple>
 
 struct Foo
 {
@@ -237,7 +236,6 @@ Similarly, we can obtain a reference to the members of a struct, and then change
 
 ```cpp
 #include <iostream>
-#include <tuple>
 
 struct Foo
 {
@@ -268,3 +266,33 @@ int main()
     $ ./a.out
     i=1 c=a d=2.3
     f.c=b
+
+We can also capture by rvalue reference using `auto&&`.
+
+Here is an example of capturing the output from a range-based for loop over a `map`
+
+```cpp
+#include <iostream>
+#include <map>
+
+int main()
+{
+    std::map<std::string, int> map = {
+        { "hello", 1 },
+        { "world", 2 },
+        { "it's",  3 },
+        { "me",    4 },
+    };
+
+    for (auto&& [ k, v ] : map)
+        std::cout << "k=" << k << " v=" << v << '\n';
+
+    return 0;
+}
+```
+    $ clang++-4.0 -std=c++1z main.cpp
+    $ ./a.out
+    k=hello v=1
+    k=it's v=3
+    k=me v=4
+    k=world v=2
