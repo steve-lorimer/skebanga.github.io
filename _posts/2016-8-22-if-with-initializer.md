@@ -30,14 +30,14 @@ int main()
 
     // only then can we check the return value
     if (!ret.second)
-        std::cout << "hello already exists\n";
+        std::cout << "hello already exists with value " << ret.first->second << "\n";
 
     // ret has "leaked" into this scope, so we need to pick a different name, ret2
     auto ret2 = map.insert({ "foo", 4 });
 
     // now we can check the value of ret2
     if (!ret2.second)
-        std::cout << "foo already exists\n";
+        std::cout << "foo already exists with value " << ret2.first->second << "\n";
 
     return 0;
 }
@@ -47,7 +47,7 @@ int main()
 
     $ clang++ -std=c++14 main.cpp
     $ ./a.out
-    hello already exists
+    hello already exists with value 1
 
 There are 2 annoyances with this code (albeit fairly minor).
 
@@ -74,13 +74,13 @@ int main()
     {
         auto ret = map.insert({ "hello", 3 });
         if (!ret.second)
-            std::cout << "hello already exists\n";
+            std::cout << "hello already exists with value " << ret.first->second << "\n";
     }
     // we create another scope to enclose ret, again preventing it from leaking out
     {
         auto ret = map.insert({ "foo", 4 });
         if (!ret.second)
-            std::cout << "foo already exists\n";
+            std::cout << "foo already exists with value " << ret.first->second << "\n";
     }
 
     return 0;
@@ -91,7 +91,7 @@ int main()
 
     $ clang++ -std=c++14 main.cpp
     $ ./a.out
-    hello already exists
+    hello already exists with value 1
 
 #### C++17
 
@@ -117,11 +117,11 @@ int main()
 
     // intitialize the condition we want to check from within the if statement
     if (auto ret = map.insert({ "hello", 3 }); !ret.second)
-        std::cout << "hello already exists\n";
+        std::cout << "hello already exists with value " << ret.first->second << "\n";
 
     // ret has not leaked, so we can use that for this conditional check too
     if (auto ret = map.insert({ "foo", 4 }); !ret.second)
-        std::cout << "foo already exists\n";
+        std::cout << "foo already exists with value " << ret.first->second << "\n";
 
     return 0;
 }
@@ -131,7 +131,7 @@ int main()
 
     $ clang++-4.0 -std=c++1z main.cpp
     $ ./a.out
-    hello already exists
+    hello already exists with value 1
 
 ## Switch statements
 
@@ -152,22 +152,21 @@ enum Result
     ABORTED
 };
 
-Result writePacket()
+std::pair<size_t /* bytes */, Result> writePacket()
 {
-    // ...
-    return SUCCESS;
+    return { 100, SUCCESS };
 }
 
 int main()
 {
-    // initialize the value we want to switch on
+    // initialize the value we want to switch on (res ends up in surrounding scope)
     auto res = writePacket();
 
     // then switch on that value
-    switch (res)
+    switch (res.second)
     {
         case SUCCESS:
-            std::cout << "successfully wrote packet\n";
+            std::cout << "successfully wrote " << res.first << " bytes\n";
             break;
         case DEVICE_FULL:
             std::cout << "insufficient space on device\n";
@@ -184,7 +183,7 @@ int main()
 
     $ clang++ -std=c++14 main.cpp
     $ ./a.out
-    successfully wrote packet
+    successfully wrote 100 bytes
 
 #### C++17
 
@@ -206,19 +205,17 @@ enum Result
     ABORTED
 };
 
-Result writePacket()
+std::pair<size_t /* bytes */, Result> writePacket()
 {
-    // ...
-    return SUCCESS;
+    return { 100, SUCCESS };
 }
 
 int main()
 {
-    // intialize the value inside the switch statement
-    switch (auto res = writePacket(); res)
+    switch (auto res = writePacket(); res.second)
     {
         case SUCCESS:
-            std::cout << "successfully wrote packet\n";
+            std::cout << "successfully wrote " << res.first << " bytes\n";
             break;
         case DEVICE_FULL:
             std::cout << "insufficient space on device\n";
@@ -235,4 +232,4 @@ Note now that we can initialize `res` *inside* the `switch` statement, and then 
 
     $ clang++-4.0 -std=c++1z main.cpp
     $ ./a.out
-    successfully wrote packet
+    successfully wrote 100 bytes
