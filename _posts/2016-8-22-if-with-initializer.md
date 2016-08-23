@@ -133,6 +133,81 @@ int main()
     $ ./a.out
     hello already exists with value 1
 
+Following comments on [reddit](https://www.reddit.com/r/cpp/comments/4z155b/c17_if_statement_with_initializer/d6s9tnz) a perhaps more
+illustrative example would be the situation where you attempt to obtain a lock, but need to do something else if it is not currently
+available.
+
+Here we attempt to lock a `std::mutex` with a `std::unique_lock`, specifying we should only `try_to_lock`.
+
+We can initialize the `std::unique_lock` from within the if statement that then checks whether we were able to lock the mutex or not.
+
+*Example:*
+
+```cpp
+#include <iostream>
+#include <mutex>
+
+int main()
+{
+    std::mutex mtx;
+    if (std::unique_lock<std::mutex> l(mtx, std::try_to_lock); l.owns_lock())
+    {
+        std::cout << "successfully locked the resource\n";
+
+        //...
+    }
+    else
+    {
+        std::cout << "resource not currently available\n";
+    }
+    return 0;
+}
+```
+*Build and run:*
+
+    $ clang++-4.0 -std=c++1z main.cpp
+    $ ./a.out
+    successfully locked the resource
+
+### Combining with [structured bindings]({% post_url 2016-8-19-structured-bindings %})
+
+The usefulness of *if with initializer* becomes more apparent when combined with *structured bindings*.
+
+In the following example we use structured bindings to unwrap the `std::pair` return value of `std::map::insert` into two
+separate variables, `it` (the iterator) and `inserted` (a boolean indicating whether the insert succeeded).
+
+We can then check whether the insert succeeded in the if statement by checking `inserted`.
+
+*Example:*
+
+```cpp
+#include <iostream>
+#include <map>
+
+int main()
+{
+    std::map<std::string, int> map;
+    map["hello"] = 1;
+    map["world"] = 2;
+
+    // intitialize the condition we want to check from within the if statement
+    if (auto [it, inserted] = map.insert({ "hello", 3 }); !inserted)
+        std::cout << "hello already exists with value " << it->second << "\n";
+
+    // ret has not leaked, so we can use that for this conditional check too
+    if (auto [it, inserted] = map.insert({ "foo", 4 }); !inserted)
+        std::cout << "foo already exists with value " << it->second << "\n";
+
+    return 0;
+}
+```
+
+*Build and run:*
+
+    $ clang++-4.0 -std=c++1z main.cpp
+    $ ./a.out
+    hello already exists with value 1
+
 ## Switch statements
 
 #### Pre C++17
