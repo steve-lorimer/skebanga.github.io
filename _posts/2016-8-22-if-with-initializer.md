@@ -133,11 +133,13 @@ int main()
     $ ./a.out
     hello already exists with value 1
 
-Following comments on [reddit](https://www.reddit.com/r/cpp/comments/4z155b/c17_if_statement_with_initializer/d6s9tnz) a perhaps more
+### std::unique_lock
+
+Following comments on [reddit](https://www.reddit.com/r/cpp/comments/4z155b/c17_if_statement_with_initializer/d6s9tnz) by [/u/holywhateverbatman](https://www.reddit.com/user/holywhateverbatman), a perhaps more
 illustrative example would be the situation where you attempt to obtain a lock, but need to do something else if it is not currently
 available.
 
-Here we attempt to lock a `std::mutex` with a `std::unique_lock`, specifying we should only `try_to_lock`.
+Here we attempt to lock a `std::mutex` with a [`std::unique_lock`](http://en.cppreference.com/w/cpp/thread/unique_lock), specifying we should only [`try_to_lock`](http://en.cppreference.com/w/cpp/thread/lock_tag).
 
 We can initialize the `std::unique_lock` from within the if statement that then checks whether we were able to lock the mutex or not.
 
@@ -150,6 +152,9 @@ We can initialize the `std::unique_lock` from within the if statement that then 
 int main()
 {
     std::mutex mtx;
+
+    // create an RAII style lock guard, but don't block if we can't lock - check to
+    //   see whether we were able to get the lock or not
     if (std::unique_lock<std::mutex> l(mtx, std::try_to_lock); l.owns_lock())
     {
         std::cout << "successfully locked the resource\n";
@@ -163,11 +168,61 @@ int main()
     return 0;
 }
 ```
+
 *Build and run:*
 
     $ clang++-4.0 -std=c++1z main.cpp
     $ ./a.out
     successfully locked the resource
+
+A slightly more contrived example showing the mutex being unavailable:
+
+```cpp
+#include <iostream>
+#include <mutex>
+#include <thread>
+#include <chrono>
+
+int main()
+{
+    // a mutex which will protect a shared resource
+    std::mutex mtx;
+
+    // start a thread which obtains the mutex and then sleeps for 2 seconds
+    //   (to give enough time for main thread to attempt to lock the mutex)
+    std::thread t([&]()
+        {
+            std::lock_guard<std::mutex> l(mtx);
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        });
+
+    // sleep for a short while to give thread t enough time to start and obtain the mutex
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    // when we try to lock in our if-with-initializer it should fail, as t owns the lock
+    if (std::unique_lock<std::mutex> l(mtx, std::try_to_lock); l.owns_lock())
+    {
+        std::cout << "successfully locked the resource\n";
+
+        //...
+    }
+    else
+    {
+        std::cout << "resource not currently available\n";
+    }
+
+    // wait for t to finish before exiting
+    if (t.joinable())
+        t.join();
+    return 0;
+}
+```
+
+*Build and run:*
+
+    $ clang++-4.0 -std=c++1z main.cpp
+    $ ./a.out
+    resource not currently available
 
 ### Combining with [structured bindings]({% post_url 2016-8-19-structured-bindings %})
 
