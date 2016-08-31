@@ -23,7 +23,7 @@ we need to have the following dependencies (starred ones are optional):
 
 I am using Ubuntu 16.04, so the default versions offered by the Ubuntu package manager are all sufficient
 
-    sudo apt-install clang libclang-dev cmake pkg-config bash-completion lua
+    sudo apt install clang libclang-dev cmake pkg-config bash-completion lua
 
 ## Download, build and install RTags
 
@@ -31,6 +31,7 @@ I am using Ubuntu 16.04, so the default versions offered by the Ubuntu package m
     git clone --recursive git@github.com:Andersbakken/rtags.git
     cd rtags
     mkdir build && cd build
+    cmake ..
     make -j8
     sudo make install
 
