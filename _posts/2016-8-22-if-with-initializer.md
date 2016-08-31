@@ -115,7 +115,7 @@ int main()
     map["hello"] = 1;
     map["world"] = 2;
 
-    // intitialize the condition we want to check from within the if statement
+    // initialize the condition we want to check from within the if statement
     if (auto ret = map.insert({ "hello", 3 }); !ret.second)
         std::cout << "hello already exists with value " << ret.first->second << "\n";
 
