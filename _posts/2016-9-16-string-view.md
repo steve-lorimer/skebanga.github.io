@@ -78,7 +78,7 @@ int main()
 
 *Build and run:*
 
-    $ clang++-4.0 -std=c++11 -Wall -Wextra -Werror main.cpp
+    $ g++ -std=c++11 -Wall -Wextra -Werror main.cpp
     $ ./a.out
     [allocating 24 bytes]
     [allocating 30 bytes]
@@ -161,7 +161,7 @@ int main()
 
 *Build and run:*
 
-    $ clang++-4.0 -std=c++1z -Wall -Wextra -Werror main.cpp
+    $ g++ -std=c++1z -Wall -Wextra -Werror main.cpp
     $ ./a.out
     [allocating 24 bytes]
     "this is my input string" does not match "this is the first test string"
@@ -169,6 +169,8 @@ int main()
     "this is my input string" does not match "this is the third test string"
 
 You can see there is only a single allocation, when we create our `str` string. The creation of `string_vew` from the literals does not require a dynamic allocation.
+
+*Note:* You can see I'm using `string_view` in the `experimental` namespace, as the version of gcc I'm using hasn't yet moved `string_view` into it's C++17 location (ie: out of experimental), which is where it will be in a C++17 compliant compiler.
 
 ### Additional benefits
 
@@ -208,7 +210,7 @@ int main()
 
 *Build and run:*
 
-    $ clang++-4.0 -std=c++1z -Wall -Wextra -Werror main.cpp
+    $ g++ -std=c++1z -Wall -Wextra -Werror main.cpp
     $ ./a.out
     [allocating 24 bytes]
     "this is my input string" does not match "my input string"
