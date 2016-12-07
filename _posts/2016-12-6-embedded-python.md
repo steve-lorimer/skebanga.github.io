@@ -87,7 +87,9 @@ private:
 
 # Step 2: Create a python wrapper for our virtual StrategyInstance
 
-Use `boost::python::wrapper` to call through to the python class's implementation
+Use **`boost::python::wrapper`** to allow a python class to subclass StrategyInstance
+
+The virtual overrides look up the python class's implementation and call those
 
 ```cpp
 class PyStrategyInstance final
@@ -98,11 +100,13 @@ class PyStrategyInstance final
 
     void eval() override
     {
+        // call through to the python class's `eval` method
         get_override("eval")();
     }
 
     void onOrder(const Order& order) override
     {
+        // call through to the python class's `on_order` method
         get_override("on_order")(order);
     }
 };
@@ -110,7 +114,7 @@ class PyStrategyInstance final
 
 # Step 3: Expose these types to python
 
-We use `boost::python` to define a python module containing all these types
+We use **`BOOST_PYTHON_MODULE`** to define a python module containing all these types
 
 ```cpp
 BOOST_PYTHON_MODULE(StrategyFramework)
@@ -139,7 +143,9 @@ BOOST_PYTHON_MODULE(StrategyFramework)
 
 # Step 4: define a function which imports a python file as a module
 
-This is taken from the python wiki on `boost::python`, from the tip on [loading a module by path](https://wiki.python.org/moin/boost.python/EmbeddingPython#Loading_a_module_by_full_or_relative_path)
+This is taken from the python wiki on `boost::python`, from the tip on [loading a module by path](https://wiki.python.org/moin/boost.python/EmbeddingPython#Loading_a_module_by_full_or_relative_path).
+
+What is does is allow us to specify a python file and load it as if we called **`import module`**
 
 ```cpp
 bp::object import(const std::string& module, const std::string& path, bp::object& globals)
@@ -157,6 +163,10 @@ bp::object import(const std::string& module, const std::string& path, bp::object
 ```
 
 # Step 5: load a python file containing our strategy and execute it
+
+This is where we pull it all together.
+
+We initialise the python runtime, register the python module with our C++ code in it, import the python file which contains our strategy, and then run it
 
 ```cpp
 int main()
@@ -195,6 +205,12 @@ catch(const bp::error_already_set&)
 
 # Step 6: define a python strategy
 
+This is the sample strategy written in python.
+
+As a proof of concept, all it does is send an order when the strategy is evaluated.
+
+We print the resulting order we receive in our callback
+
 ```cpp
 from StrategyFramework import *
 
@@ -223,6 +239,8 @@ order for GOOG buy 100@759.11 has order_id=1
 ---
 
 # Complete code listing:
+
+Here is the complete code listing which you can use to test out the code yourself
 
 ## `main.cpp`:
 
