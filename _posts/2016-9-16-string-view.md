@@ -139,7 +139,7 @@ void* operator new(std::size_t n)
     return malloc(n);
 }
 
-bool compare(const std::experimental::string_view& s1, const std::experimental::string_view& s2)
+bool compare(std::experimental::string_view s1, std::experimental::string_view s2)
 {
     if (s1 == s2)
         return true;
@@ -188,7 +188,7 @@ void* operator new(std::size_t n)
     return malloc(n);
 }
 
-bool compare(const std::experimental::string_view& s1, const std::experimental::string_view& s2)
+bool compare(std::experimental::string_view s1, std::experimental::string_view s2)
 {
     if (s1 == s2)
         return true;

@@ -43,7 +43,9 @@ Create a systemd config directory for your user
 
 ### Create the RTags daemon socket service config
 
-Add the following to `~/.config/systemd/user/rdm.socket`:
+    $ vim ~/.config/systemd/user/rdm.socket
+
+Add the following:    
 
     [Unit]
     Description=RTags daemon socket
@@ -56,12 +58,14 @@ Add the following to `~/.config/systemd/user/rdm.socket`:
 
 ### Create the RTags daemon service config
 
-Add the following to `~/.config/systemd/user/rdm.service`:
+    $ vim ~/.config/systemd/user/rdm.service
+
+Add the following
 
     [Unit]
     Description=RTags daemon
 
-    Requires=rdm.socketp
+    Requires=rdm.socket
 
     [Service]
     Type=simple
